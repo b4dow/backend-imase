@@ -3,6 +3,15 @@ const { Op } = require('sequelize');
 const { models } = require('../libs/sequelize');
 
 class ProductService {
+ async create(body) {
+  try {
+   const newProduct = await models.Product.create(body);
+   return newProduct;
+  } catch (error) {
+   throw boom.badImplementation('No se puede crear el Producto');
+  }
+ }
+
  async find(query) {
   try {
    const options = {
@@ -34,15 +43,6 @@ class ProductService {
   }
  }
 
- async create(body) {
-  try {
-   const newProduct = await models.Product.create(body);
-   return newProduct;
-  } catch (error) {
-   throw boom.badImplementation('No se puede crear el Producto');
-  }
- }
-
  async findOne(id) {
   const product = await models.Product.findByPk(id);
   if (!product) {
@@ -51,6 +51,7 @@ class ProductService {
 
   return product;
  }
+ 
  async findAvailibility(id) {
   const findProduct = await this.findOne(id);
 

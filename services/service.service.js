@@ -1,26 +1,20 @@
 const boom = require('@hapi/boom');
 const { Op } = require('sequelize');
 const { models } = require('../libs/sequelize');
+const { uploadImage } = require('../libs/cloudinary');
 
 class ServicesService {
  constructor() {}
 
  async create(data) {
-    try {
-     const service = await models.Service.create(data);
-  
-     return service;
-    } catch (error) {
-     throw boom.notFound('No fue posible crear el servicio');
-    }
-   }
-
-  async upload(file) {
-    const imageResponse = await uploadImage(file);
-    return imageResponse
+  try {
+   const service = await models.Service.create(data);
+   return service;
+  } catch (error) {
+   console.log(error);
+   throw boom.notFound('No fue posible crear el servicio');
   }
-
- 
+ }
 
  async find(query) {
   try {
@@ -54,8 +48,6 @@ class ServicesService {
   }
  }
 
-
-
  async findOne(id) {
   const service = await models.Service.findByPk(id);
   if (!service) {
@@ -64,6 +56,13 @@ class ServicesService {
 
   return service;
  }
+
+ async findAvailibility(id) {
+    const findService = await this.findOne(id);
+  
+    findService.available = !findService.dataValues.available;
+    return await findService.save();
+   }
 
  async update(id, changes) {
   const findService = await this.findOne(id);
@@ -74,9 +73,7 @@ class ServicesService {
 
  async delete(id) {
   const findService = await this.findOne(id);
-
   await findService.destroy();
-  return { msg: 'Servicio Eliminado' };
  }
 }
 

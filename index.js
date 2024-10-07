@@ -14,10 +14,10 @@ const app = express();
 const PORT = 4000;
 
 app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({limit: '50mb', extended: true }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(morgan('dev'));
 
-const whiteList = ['http://localhost:8080', 'http://localhost:5173', 'http://localhost:3000'];
+const whiteList = ['http://localhost:8080', 'http://localhost:3000'];
 const options = {
  origin: (origin, callback) => {
   if (whiteList.includes(origin) || !origin) {
@@ -37,6 +37,8 @@ app.use(logErrors);
 app.use(ormErrorHandler);
 app.use(boomErrorHandler);
 app.use(errorHandlers);
+
+
 
 app.listen(PORT, () => {
  console.log(colors.magenta.bold(`Listening on port ${PORT}`));

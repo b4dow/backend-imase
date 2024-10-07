@@ -6,33 +6,26 @@ const {
  updateServiceSchema,
  getServiceSchema,
 } = require('../schemas/service.schema');
-const { cloudinary } = require('../libs/cloudinary');
+const { uploadImage } = require('../libs/cloudinary');
+
 const router = Router();
 const service = new ServicesService();
-
-router.post('/upload', async (req, res, next) => {
- const data = req.body;
- const base64String = Object.keys(data)[0];
-
- try {
-  const result = await cloudinary.uploader.upload(base64String, {
-    upload_preset: 'dev_setups',
-  });
-  console.log(result)
- } catch (error) {
-  console.log(error);
-  next(error);
- }
-});
 
 router.post(
  '/',
  validatorHandler(createServiceSchema, 'body'),
  async (req, res, next) => {
-  console.log(req.body);
+  const { name, description, image, url } = req.body;
   try {
-   const newService = await service.create(req.body);
-   res.status(201).json(newService);
+   const convertImage = await uploadImage(image);
+
+   await service.create({
+    name,
+    description,
+    image: convertImage.secure_url,
+    url,
+   });
+   res.send('Servicio creado con éxito');
   } catch (error) {
    next(error);
   }
@@ -42,7 +35,6 @@ router.post(
 router.get('/', async (req, res, next) => {
  try {
   const services = await service.find(req.query);
-  console.log(services);
   res.json({ data: services });
  } catch (error) {
   next(error);
@@ -64,16 +56,33 @@ router.put(
  validatorHandler(getServiceSchema, 'params'),
  validatorHandler(updateServiceSchema, 'body'),
  async (req, res, next) => {
+  const { id } = req.params;
+  const { name, description, image, url } = req.body;
   try {
-   const { id } = req.params;
-   const body = req.body;
-   const updateService = await service.update(id, body);
-   res.json({ data: updateService });
+   const convertImage = image ? await uploadImage(image) : image;
+
+   await service.update(id, {
+    name,
+    description,
+    image: convertImage?.secure_url,
+    url,
+   });
+   res.send('Servicio editado con éxito');
   } catch (error) {
    next(error);
   }
  }
 );
+
+router.patch('/:id', async (req, res, next) => {
+    try {
+     const { id } = req.params;
+     const product = await service.findAvailibility(id);
+     res.json({ data: product });
+    } catch (error) {
+     next(error);
+    }
+   });
 
 router.delete(
  '/:id',
@@ -81,8 +90,8 @@ router.delete(
  async (req, res, next) => {
   try {
    const { id } = req.params;
-   const deleteService = await service.delete(id);
-   res.json(deleteService);
+   await service.delete(id);
+   res.send('Servicio eliminado con éxito');
   } catch (error) {
    next(error);
   }

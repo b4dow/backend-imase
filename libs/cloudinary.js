@@ -8,10 +8,14 @@ cloudinary.config({
 });
 
 const uploadImage = async (file) => {
- const uploadResponse = await cloudinary.uploader.upload(file, {
-  upload_preset: 'lernu6gr',
- });
- console.log(uploadResponse);
+ try {
+  const uploadResponse = await cloudinary.uploader.upload(file, {
+   upload_preset: 'dev_setups',
+  });
+  return uploadResponse;
+ } catch (error) {
+  console.error(error);
+ }
 };
 
-module.exports = { cloudinary };
+module.exports = { uploadImage };
