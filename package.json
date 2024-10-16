@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node ./index.js",
     "dev": "nodemon ./index.js",
+    "dev:api" : "nodemon ./index.js --api",
     "migration:generate": "sequelize-cli migration:generate --name",
     "migration:run": "sequelize-cli db:migrate",
     "migration:revert": "sequelize-cli db:migrate:undo",

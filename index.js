@@ -9,26 +9,18 @@ const {
  boomErrorHandler,
  ormErrorHandler,
 } = require('./middleware/error.handler');
+const { frontendUrl } = require('./config/config');
+const { corsOptions } = require('./config/corsOptions');
+// const { corsOptions } = require('./config/corsOptions');
 
 const app = express();
 const PORT = 4000;
 
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+// Middlewares
+// app.use(cors(corsOptions))
+
+app.use(express.json({ limit: '10mb' }));
 app.use(morgan('dev'));
-
-const whiteList = ['http://localhost:8080', 'http://localhost:3000'];
-const options = {
- origin: (origin, callback) => {
-  if (whiteList.includes(origin) || !origin) {
-   callback(null, true);
-  } else {
-   callback(new Error('No Permitido'));
-  }
- },
-};
-
-app.use(cors(options));
 
 // Routing
 routerApi(app);
@@ -37,8 +29,6 @@ app.use(logErrors);
 app.use(ormErrorHandler);
 app.use(boomErrorHandler);
 app.use(errorHandlers);
-
-
 
 app.listen(PORT, () => {
  console.log(colors.magenta.bold(`Listening on port ${PORT}`));

@@ -13,6 +13,9 @@ const config = {
  cloudName: process.env.CLOUDINARY_CLOUD_NAME,
  cloudApiKey: process.env.CLOUDINARY_API_KEY,
  cloudApiSecret: process.env.CLOUDINARY_API_SECRET,
+
+ // CORS
+ frontendUrl: process.env.FRONTEND_URL
 };
 
 module.exports = config;

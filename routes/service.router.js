@@ -6,7 +6,6 @@ const {
  updateServiceSchema,
  getServiceSchema,
 } = require('../schemas/service.schema');
-const { uploadImage } = require('../libs/cloudinary');
 
 const router = Router();
 const service = new ServicesService();
@@ -15,17 +14,9 @@ router.post(
  '/',
  validatorHandler(createServiceSchema, 'body'),
  async (req, res, next) => {
-  const { name, description, image, url } = req.body;
   try {
-   const convertImage = await uploadImage(image);
-
-   await service.create({
-    name,
-    description,
-    image: convertImage.secure_url,
-    url,
-   });
-   res.send('Servicio creado con éxito');
+   await service.create(req.body);
+   res.send('servicio creado con éxito');
   } catch (error) {
    next(error);
   }
@@ -35,7 +26,7 @@ router.post(
 router.get('/', async (req, res, next) => {
  try {
   const services = await service.find(req.query);
-  res.json({ data: services });
+  res.json(services);
  } catch (error) {
   next(error);
  }
@@ -57,16 +48,8 @@ router.put(
  validatorHandler(updateServiceSchema, 'body'),
  async (req, res, next) => {
   const { id } = req.params;
-  const { name, description, image, url } = req.body;
   try {
-   const convertImage = image ? await uploadImage(image) : image;
-
-   await service.update(id, {
-    name,
-    description,
-    image: convertImage?.secure_url,
-    url,
-   });
+   await service.update(id, req.body);
    res.send('Servicio editado con éxito');
   } catch (error) {
    next(error);
@@ -75,14 +58,14 @@ router.put(
 );
 
 router.patch('/:id', async (req, res, next) => {
-    try {
-     const { id } = req.params;
-     const product = await service.findAvailibility(id);
-     res.json({ data: product });
-    } catch (error) {
-     next(error);
-    }
-   });
+ try {
+  const { id } = req.params;
+  const product = await service.findAvailibility(id);
+  res.json({ data: product });
+ } catch (error) {
+  next(error);
+ }
+});
 
 router.delete(
  '/:id',

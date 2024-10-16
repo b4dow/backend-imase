@@ -18,4 +18,12 @@ const uploadImage = async (file) => {
  }
 };
 
-module.exports = { uploadImage };
+const deleteImage = async (public_id) => {
+ try {
+  await cloudinary.uploader.destroy(public_id);
+ } catch (error) {
+  console.log(error);
+ }
+};
+
+module.exports = { uploadImage, deleteImage };

@@ -2,7 +2,7 @@ const colors = require('colors');
 const { ValidationError } = require('sequelize');
 
 const logErrors = (err, req, res, next) => {
- console.log(`${colors.red.bold('Error Handler')}`);
+ console.log(`${colors.red.bold('Error Handler')} : ${err}`);
  next(err);
 };
 
@@ -33,11 +33,9 @@ const ormErrorHandler = (err, req, res, next) => {
  next(err);
 };
 
-
-
 module.exports = {
  logErrors,
  errorHandlers,
  ormErrorHandler,
- boomErrorHandler
+ boomErrorHandler,
 };

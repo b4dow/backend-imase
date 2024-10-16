@@ -4,38 +4,42 @@ const SERVICE_TABLE = 'Service';
 
 const ServicesSchema = {
  id: {
-  allowNull: false,
+  required: true,
   type: DataTypes.UUID,
   defaultValue: DataTypes.UUIDV4,
   primaryKey: true,
  },
  name: {
   type: DataTypes.STRING,
-  allowNull: false,
+  required: true,
   unique: true,
  },
  description: {
-  type: DataTypes.STRING,
-  allowNull: false,
+  type: DataTypes.STRING(1000),
+  required: true,
  },
  image: {
   type: DataTypes.STRING,
-  allowNull: false,
+  required: true,
+ },
+ public_id: {
+  type: DataTypes.STRING,
+  required: true,
  },
  url: {
   type: DataTypes.STRING,
-  allowNull: false,
+  required: true,
  },
  available: {
   type: DataTypes.BOOLEAN,
   defaultValue: true,
-  allowNull: false,
+  required: true,
  },
  createdAt: {
   type: DataTypes.DATE,
   field: 'create_at',
   defaultValue: Sequelize.NOW,
-  allowNull: false,
+  required: true,
  },
 };
 

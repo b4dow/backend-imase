@@ -1,15 +1,30 @@
 const boom = require('@hapi/boom');
 const { Op } = require('sequelize');
 const { models } = require('../libs/sequelize');
+const { uploadImage, deleteImage } = require('../libs/cloudinary');
 
 class ProductService {
  async create(body) {
-  try {
-   const newProduct = await models.Product.create(body);
-   return newProduct;
-  } catch (error) {
-   throw boom.badImplementation('No se puede crear el Producto');
+  const { name, description, image, url } = body;
+
+  const productExist = await models.Product.findOne({
+   where: { name },
+  });
+  // validar si el producto ya existe
+  if (productExist) {
+   throw boom.badRequest('Producto ya existe');
   }
+  // subir imagen a cloudinary
+  const convertImage = await uploadImage(image);
+  // crear producto
+  const newProduct = await models.Product.create({
+   name,
+   description,
+   image: convertImage.secure_url,
+   public_id: convertImage.public_id,
+   url,
+  });
+  return newProduct;
  }
 
  async find(query) {
@@ -34,9 +49,6 @@ class ProductService {
 
    const products = await models.Product.findAll(options);
    const productCount = await models.Product.count(options);
-   if (!products) {
-    return boom.notFound('No hay productos');
-   }
    return { products, productCount };
   } catch (error) {
    throw boom.notFound('No fue posible encontrar los productos');
@@ -51,7 +63,7 @@ class ProductService {
 
   return product;
  }
- 
+
  async findAvailibility(id) {
   const findProduct = await this.findOne(id);
 
@@ -59,17 +71,32 @@ class ProductService {
   return await findProduct.save();
  }
 
- async update(id, changes) {
+ async update(id, body) {
   const findProduct = await this.findOne(id);
 
-  const product = await findProduct.update(changes);
-  return product;
+  if (body.image !== findProduct.image) {
+   // base64 !== res.cloudinary
+   await deleteImage(findProduct.public_id);
+   body.image = await uploadImage(body.image);
+  }
+
+  findProduct.name = body.name;
+  findProduct.description = body.description;
+  findProduct.image = body.image?.secure_url;
+  findProduct.public_id =
+   body.image === findProduct.image
+    ? findProduct.public_id
+    : body.image.public_id;
+  findProduct.url = body.url;
+  await findProduct.save();
+
+  return findProduct;
  }
 
  async delete(id) {
   const findProduct = await this.findOne(id);
-  await findProduct.destroy(id);
-  return { msg: 'Producto Eliminado' };
+  await deleteImage(findProduct.public_id);
+  await findProduct.destroy();
  }
 }
 
