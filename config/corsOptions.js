@@ -2,7 +2,7 @@ const { frontendUrl } = require('./config');
 
 const corsOptions = {
  origin: (origin, callback) => {
-  const whiteList = [frontendUrl];
+  const whiteList = ['https://localhost:3000'];
   console.log(process.argv);
   if (process.argv[2] === '--api') {
    whiteList.push(undefined);

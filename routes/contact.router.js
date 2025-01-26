@@ -1,23 +1,23 @@
 const { Router } = require('express');
+const ContactService = require('../services/contact.service');
+
+const service = new ContactService();
 
 const router = Router();
 const validatorHandler = require('../middleware/validator.handler');
-const sendMail = require('../libs/nodemailer');
 const { createContactSchema } = require('../schemas/contact.schema');
 
 router.post(
- '/',
- validatorHandler(createContactSchema, 'body'),
- async (req, res, next) => {
-  const { name, email, message } = req.body;
-  try {
-   await sendMail(name, email, message);
-   console.log(req.body);
-   res.send('Correo Enviado');
-  } catch (error) {
-   next(error);
+  '/',
+  validatorHandler(createContactSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const rta = await service.send(req.body);
+      res.json(rta);
+    } catch (error) {
+      next(error);
+    }
   }
- }
 );
 
 module.exports = router;
